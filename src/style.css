@@ -38,8 +38,8 @@ h1 {
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
+  max-width: 5px;
+  margin: 10;
   padding: 2rem;
   text-align: center;
 }
@@ -63,6 +63,12 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+#canvas {
+  border-radius: 20px; /* curved border */
+  filter: drop-shadow(30px 10px 4px #0a0a13); /* drop shadow */
+  margin: 0 auto;
 }
 
 @media (prefers-color-scheme: light) {
