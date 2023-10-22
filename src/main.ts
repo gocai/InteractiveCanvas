@@ -109,8 +109,7 @@ canvas.addEventListener("mousedown", (e) => {
   
 clear.addEventListener("click", (clearCanvas));
 function clearCanvas() {
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  points.splice(0, points.length);
+  points.splice(zero, points.length);
   console.log(points);
   notify("drawing-changed");
   }
