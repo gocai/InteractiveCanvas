@@ -72,7 +72,7 @@ canvas.addEventListener("mousedown", (e) => {
       
       cursor.x = event.offsetX;
       cursor.y = event.offsetY;
-      points.push(currentLine);
+      //points.push(currentLine);
       currentLine.push({ x: cursor.x, y: cursor.y });
       notify("drawing-changed");
     }
@@ -121,7 +121,7 @@ function clearCanvas() {
 
 undoButton.addEventListener("click", (undoCanvas));
 function undoCanvas() {
-  
+  console.log(points.length);
   if (points.length > zero) {
     redoLines.push(points.pop()!);
     notify("drawing-changed");
@@ -134,6 +134,7 @@ function undoCanvas() {
 
 redoButton.addEventListener("click", (redoCanvas));
 function redoCanvas() {
+  console.log(redoLines.length);
   if (redoLines.length > zero) {
     points.push(redoLines.pop()!);
     notify("drawing-changed");
