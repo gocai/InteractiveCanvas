@@ -2,12 +2,14 @@ import "./style.css";
 
 class LineCommand {
   points: { x: number, y: number }[];
-  constructor(x:number, y:number) {
+  lineThickness: number;
+  constructor(x:number, y:number, thickness: number) {
     this.points = [{ x, y }];
+    this.lineThickness = thickness;
   }
   display(ctx: CanvasRenderingContext2D) {
     ctx.strokeStyle = "black";
-    ctx.lineWidth = 4;
+    ctx.lineWidth = this.lineThickness;
     ctx.beginPath();
     const { x, y } = this.points[0];
     ctx.moveTo(x, y);
@@ -39,19 +41,14 @@ canvas.querySelector("#canvas");
 const ctx = canvas.getContext("2d")!;
 canvas.height = 256;
 canvas.width = 256;
+ctx.fillStyle = "white";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 const a = 0;
 const b = 0;
 const cursor = { active: false, x: 0, y: 0 };
 const zero = 0;
-
-function drawCanvas() {
-    ctx.fillStyle = "white";
-    ctx.fillRect(a, b, canvas.width, canvas.height);
-    ctx.strokeStyle = "black";
-    ctx.strokeRect(a, b, canvas.width, canvas.height);
-}
-drawCanvas();
+let currentThickness = 2;
 
 
 const lines: LineCommand[] = []; //equivalent to "linecommand"
@@ -72,7 +69,7 @@ canvas.addEventListener("mousedown", (e) => {
   cursor.active = true;
   cursor.x = e.offsetX;
   cursor.y = e.offsetY;
-  currentLine = new LineCommand(cursor.x,cursor.y);
+  currentLine = new LineCommand(cursor.x,cursor.y,currentThickness);
   lines.push(currentLine);
   redoLines.splice(zero, redoLines.length);
   //currentLine.push({ x: cursor.x, y: cursor.y });
@@ -92,6 +89,7 @@ canvas.addEventListener("mousedown", (e) => {
       currentLine!.drag(cursor.x,cursor.y);
       notify("drawing-changed");
     }
+    console.log(currentThickness);
   });
   
   
@@ -102,8 +100,7 @@ canvas.addEventListener("mousedown", (e) => {
   });
   
   function redraw() {
-    ctx.clearRect(zero, zero, canvas.width, canvas.height);
-    drawCanvas();
+    ctx.fillRect(zero, zero, canvas.width, canvas.height);
     for (const line of lines) {
       line.display(ctx);
     }
@@ -146,3 +143,29 @@ function redoCanvas() {
     notify("drawing-changed");
   }
 }
+
+const thinButton = document.createElement("button");
+  thinButton.innerHTML = "<-";
+thinButton.addEventListener("click", () => {
+  if (currentThickness >= 1) {
+    currentThickness--;
+    //lines[lines.length - 1].lineThickness = currentThickness;
+    ctx.lineWidth = currentThickness;
+    notify("drawing-changed");
+    console.log("thin works");
+  }
+});
+  
+const thickButton = document.createElement("button");
+  thickButton.innerHTML = "->";
+thickButton.addEventListener("click", () => {
+  if (currentThickness < 15) {
+    currentThickness++;
+    //lines[lines.length-1].lineThickness = currentThickness;
+    ctx.lineWidth = currentThickness;
+    notify("drawing-changed");
+    console.log("thick works");
+  }
+});
+  
+app.append(thinButton, thickButton);
