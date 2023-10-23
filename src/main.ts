@@ -1,5 +1,26 @@
 import "./style.css";
 
+class LineCommand {
+  points: { x: number, y: number }[];
+  constructor(x:number, y:number) {
+    this.points = [{ x, y }];
+  }
+  display(ctx: CanvasRenderingContext2D) {
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    const { x, y } = this.points[0];
+    ctx.moveTo(x, y);
+    for (const { x, y } of this.points) {
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  drag(x:number, y:number) {
+    this.points.push({ x, y });
+  }
+}
+
 const app: HTMLDivElement = document.querySelector("#app")!;
 
 const gameName = "small title change";
@@ -22,7 +43,6 @@ canvas.width = 256;
 const a = 0;
 const b = 0;
 const cursor = { active: false, x: 0, y: 0 };
-const one = 1;
 const zero = 0;
 
 function drawCanvas() {
@@ -33,14 +53,10 @@ function drawCanvas() {
 }
 drawCanvas();
 
-interface Point{
-  x: number;
-  y: number;
-}
 
-const points: Point[][] = [];
-let currentLine: Point[] = [];
-const redoLines: Point[][] = [];
+const lines: LineCommand[] = []; //equivalent to "linecommand"
+let currentLine:LineCommand|null = null;
+const redoLines: LineCommand[] = [];
 
 
 const bus = new EventTarget();
@@ -56,10 +72,10 @@ canvas.addEventListener("mousedown", (e) => {
   cursor.active = true;
   cursor.x = e.offsetX;
   cursor.y = e.offsetY;
-  currentLine = [];
-  points.push(currentLine);
+  currentLine = new LineCommand(cursor.x,cursor.y);
+  lines.push(currentLine);
   redoLines.splice(zero, redoLines.length);
-  currentLine.push({ x: cursor.x, y: cursor.y });
+  //currentLine.push({ x: cursor.x, y: cursor.y });
   notify("drawing-changed");
   
   
@@ -73,7 +89,7 @@ canvas.addEventListener("mousedown", (e) => {
       cursor.x = event.offsetX;
       cursor.y = event.offsetY;
       //points.push(currentLine);
-      currentLine.push({ x: cursor.x, y: cursor.y });
+      currentLine!.drag(cursor.x,cursor.y);
       notify("drawing-changed");
     }
   });
@@ -81,24 +97,15 @@ canvas.addEventListener("mousedown", (e) => {
   
   canvas.addEventListener("mouseup", () => {
     cursor.active = false;
-    currentLine = [];
+    currentLine = null;
     notify("drawing-changed");
   });
   
   function redraw() {
     ctx.clearRect(zero, zero, canvas.width, canvas.height);
     drawCanvas();
-    for (const line of points) {
-      if (line.length > one) {
-        ctx.beginPath();
-        const { x, y } = line[zero];
-        ctx.moveTo(x, y);
-        for (const { x, y } of line) {
-          ctx.lineTo(x, y);
-        }
-        ctx.stroke();
-        
-      }
+    for (const line of lines) {
+      line.display(ctx);
     }
     console.log("redraw was called");
   }
@@ -109,8 +116,8 @@ canvas.addEventListener("mousedown", (e) => {
   
 clear.addEventListener("click", (clearCanvas));
 function clearCanvas() {
-  points.splice(zero, points.length);
-  console.log(points);
+  lines.splice(zero, lines.length);
+  console.log(lines);
   notify("drawing-changed");
   }
 
@@ -120,9 +127,9 @@ function clearCanvas() {
 
 undoButton.addEventListener("click", (undoCanvas));
 function undoCanvas() {
-  console.log(points.length);
-  if (points.length > zero) {
-    redoLines.push(points.pop()!);
+  console.log(lines.length);
+  if (lines.length > zero) {
+    redoLines.push(lines.pop()!);
     notify("drawing-changed");
   }
 }
@@ -135,7 +142,7 @@ redoButton.addEventListener("click", (redoCanvas));
 function redoCanvas() {
   console.log(redoLines.length);
   if (redoLines.length > zero) {
-    points.push(redoLines.pop()!);
+    lines.push(redoLines.pop()!);
     notify("drawing-changed");
   }
 }
