@@ -44,8 +44,6 @@ canvas.width = 256;
 ctx.fillStyle = "white";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-const a = 0;
-const b = 0;
 const cursor = { active: false, x: 0, y: 0 };
 const zero = 0;
 let currentThickness = 2;
