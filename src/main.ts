@@ -23,6 +23,23 @@ class LineCommand {
   }
 }
 
+class CursorCommand {
+  x: number;
+  y: number;
+  constructor(x:number, y:number) {
+    this.x = x;
+    this.y = y;
+  }
+  displayCursor(ctx: CanvasRenderingContext2D) {
+    const originalFill = ctx.fillStyle;
+    ctx.font = "32px monospace";
+    ctx.fillStyle = "black";
+    ctx.fillText("*", this.x - 8, this.y+16);
+    console.log(`displaycursor works: ${this.x}, ${this.y},`, ctx.font);
+    ctx.fillStyle = originalFill;
+  }
+}
+
 const app: HTMLDivElement = document.querySelector("#app")!;
 
 const gameName = "small title change";
@@ -43,6 +60,8 @@ canvas.height = 256;
 canvas.width = 256;
 ctx.fillStyle = "white";
 ctx.fillRect(0, 0, canvas.width, canvas.height);
+canvas.style.cursor = "none";
+
 
 const cursor = { active: false, x: 0, y: 0 };
 const zero = 0;
@@ -52,6 +71,7 @@ let currentThickness = 2;
 const lines: LineCommand[] = []; //equivalent to "linecommand"
 let currentLine:LineCommand|null = null;
 const redoLines: LineCommand[] = [];
+let cursorMouse : CursorCommand | null = null;
 
 
 const bus = new EventTarget();
@@ -60,8 +80,11 @@ function notify(name:string) {
   bus.dispatchEvent(new Event(name));
 }
 bus.addEventListener("drawing-changed", redraw);
+bus.addEventListener("tool-moved", redraw);
 
-
+canvas.addEventListener("mouseenter", (e) => {
+  cursorMouse = new CursorCommand(e.offsetX, e.offsetY);
+});
 
 canvas.addEventListener("mousedown", (e) => {
   cursor.active = true;
@@ -84,9 +107,10 @@ canvas.addEventListener("mousedown", (e) => {
       cursor.x = event.offsetX;
       cursor.y = event.offsetY;
       //points.push(currentLine);
-      currentLine!.drag(cursor.x,cursor.y);
-      notify("drawing-changed");
+      currentLine!.drag(cursor.x, cursor.y);
     }
+    cursorMouse = new CursorCommand(event.offsetX, event.offsetY);
+    notify("tool-moved");
     console.log(currentThickness);
   });
   
@@ -101,6 +125,9 @@ canvas.addEventListener("mousedown", (e) => {
     ctx.fillRect(zero, zero, canvas.width, canvas.height);
     for (const line of lines) {
       line.display(ctx);
+    }
+    if (cursorMouse) {
+      cursorMouse.displayCursor(ctx);
     }
     console.log("redraw was called");
   }
@@ -167,3 +194,5 @@ thickButton.addEventListener("click", () => {
 });
   
 app.append(thinButton, thickButton);
+
+//step 7 is the cursor thingy, the asterisk that the prof has for the cursor
