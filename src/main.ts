@@ -68,7 +68,7 @@ class StickerCommand {
 
 const stickerButton = document.createElement("button");
   stickerButton.innerHTML = currentSticker? currentSticker:"🧀";
-stickerButton.addEventListener("click", (e) => {
+stickerButton.addEventListener("click", () => {
   currentSticker = "🧀"; //eventually, make an array or list of available stickers instead of just cheese
   //stickerCommand = new StickerCommand(e.offsetX, e.offsetY, currentSticker);
   console.log(currentSticker);
@@ -76,7 +76,7 @@ stickerButton.addEventListener("click", (e) => {
 
 const penButton = document.createElement("button");
   penButton.innerHTML = currentSticker? currentSticker:"🖊️";
-penButton.addEventListener("click", (e) => {
+penButton.addEventListener("click", () => {
   currentSticker = null;
   stickerCommand = null;
   console.log(currentSticker);
@@ -113,7 +113,7 @@ let currentThickness = 2;
 
 
 const lines: (LineCommand|StickerCommand)[] = []; //equivalent to "linecommand"
-let currentLine:LineCommand|null = null;
+//let currentLine:LineCommand|null = null;
 const redoLines: (LineCommand|StickerCommand)[] = [];
 let cursorMouse: CursorCommand | null = null;
 
@@ -134,7 +134,7 @@ canvas.addEventListener("mousedown", (e) => {
   cursor.active = true;
   cursor.x = e.offsetX;
   cursor.y = e.offsetY;
-  currentLine = new LineCommand(cursor.x,cursor.y,currentThickness);
+  //currentLine = new LineCommand(cursor.x,cursor.y,currentThickness);
   //lines.push(currentLine);
   if (currentSticker) {
     lines.push(new StickerCommand(e.offsetX, e.offsetY, currentSticker));
@@ -167,7 +167,7 @@ canvas.addEventListener("mousedown", (e) => {
   
   canvas.addEventListener("mouseup", () => {
     cursor.active = false;
-    currentLine = null;
+    //currentLine = null;
     notify("drawing-changed");
   });
 
