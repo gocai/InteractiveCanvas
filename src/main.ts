@@ -30,7 +30,7 @@ class CursorCommand {
     this.x = x;
     this.y = y;
   }
-  displayCursor(ctx: CanvasRenderingContext2D) {
+  display(ctx: CanvasRenderingContext2D) {
     const originalFill = ctx.fillStyle;
     ctx.font = "32px monospace";
     ctx.fillStyle = "black";
@@ -39,6 +39,50 @@ class CursorCommand {
     ctx.fillStyle = originalFill;
   }
 }
+let currentSticker: string | null = null;
+let stickerCommand: StickerCommand | null = null;
+
+class StickerCommand {
+  x: number;
+  y: number;
+  sticker: string | null;
+  constructor(x:number, y:number,sticker:string | null) {
+    this.x = x;
+    this.y = y;
+    this.sticker = sticker;
+  }
+  display(ctx: CanvasRenderingContext2D) {
+    const originalFill = ctx.fillStyle;
+    ctx.font = "32px monospace";
+    ctx.fillStyle = "black";
+    if (this.sticker) {
+      ctx.fillText(this.sticker, this.x, this.y);
+    }
+    ctx.fillStyle = originalFill;
+  }
+  drag(x:number, y:number) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
+const stickerButton = document.createElement("button");
+  stickerButton.innerHTML = currentSticker? currentSticker:"🧀";
+stickerButton.addEventListener("click", (e) => {
+  currentSticker = "🧀"; //eventually, make an array or list of available stickers instead of just cheese
+  //stickerCommand = new StickerCommand(e.offsetX, e.offsetY, currentSticker);
+  console.log(currentSticker);
+});
+
+const penButton = document.createElement("button");
+  penButton.innerHTML = currentSticker? currentSticker:"🖊️";
+penButton.addEventListener("click", (e) => {
+  currentSticker = null;
+  stickerCommand = null;
+  console.log(currentSticker);
+});
+
+
 
 const app: HTMLDivElement = document.querySelector("#app")!;
 
@@ -68,10 +112,10 @@ const zero = 0;
 let currentThickness = 2;
 
 
-const lines: LineCommand[] = []; //equivalent to "linecommand"
+const lines: (LineCommand|StickerCommand)[] = []; //equivalent to "linecommand"
 let currentLine:LineCommand|null = null;
-const redoLines: LineCommand[] = [];
-let cursorMouse : CursorCommand | null = null;
+const redoLines: (LineCommand|StickerCommand)[] = [];
+let cursorMouse: CursorCommand | null = null;
 
 
 const bus = new EventTarget();
@@ -91,9 +135,14 @@ canvas.addEventListener("mousedown", (e) => {
   cursor.x = e.offsetX;
   cursor.y = e.offsetY;
   currentLine = new LineCommand(cursor.x,cursor.y,currentThickness);
-  lines.push(currentLine);
-  redoLines.splice(zero, redoLines.length);
+  //lines.push(currentLine);
+  if (currentSticker) {
+    lines.push(new StickerCommand(e.offsetX, e.offsetY, currentSticker));
+  } else {
+    lines.push(new LineCommand(e.offsetX,e.offsetY,currentThickness));
+  }
   //currentLine.push({ x: cursor.x, y: cursor.y });
+  redoLines.splice(zero, redoLines.length);
   notify("drawing-changed");
   
   
@@ -103,11 +152,12 @@ canvas.addEventListener("mousedown", (e) => {
   
   canvas.addEventListener("mousemove", (event) => {
     if (cursor.active) {
-      
-      cursor.x = event.offsetX;
-      cursor.y = event.offsetY;
       //points.push(currentLine);
-      currentLine!.drag(cursor.x, cursor.y);
+      lines[lines.length - 1].drag(event.offsetX, event.offsetY);
+      lines[lines.length - 1].display(ctx);
+    }
+    if (currentSticker) {
+      stickerCommand = new StickerCommand(event.offsetX, event.offsetY, currentSticker);
     }
     cursorMouse = new CursorCommand(event.offsetX, event.offsetY);
     notify("tool-moved");
@@ -120,6 +170,12 @@ canvas.addEventListener("mousedown", (e) => {
     currentLine = null;
     notify("drawing-changed");
   });
+
+canvas.addEventListener("mouseout", () => {
+  cursor.active = false;
+  stickerCommand = null;
+  cursorMouse = null;
+});
   
   function redraw() {
     ctx.fillRect(zero, zero, canvas.width, canvas.height);
@@ -127,7 +183,9 @@ canvas.addEventListener("mousedown", (e) => {
       line.display(ctx);
     }
     if (cursorMouse) {
-      cursorMouse.displayCursor(ctx);
+      cursorMouse.display(ctx);
+    }if (stickerCommand) {
+      stickerCommand.display(ctx);
     }
     console.log("redraw was called");
   }
@@ -193,6 +251,6 @@ thickButton.addEventListener("click", () => {
   }
 });
   
-app.append(thinButton, thickButton);
+app.append(thinButton, thickButton, stickerButton, penButton);
 
-//step 7 is the cursor thingy, the asterisk that the prof has for the cursor
+//step 8 is like cursorcommand, but with stickers
