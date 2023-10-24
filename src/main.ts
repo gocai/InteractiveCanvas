@@ -26,13 +26,15 @@ class LineCommand {
 class CursorCommand {
   x: number;
   y: number;
-  constructor(x:number, y:number) {
+  cursorThickness: number;
+  constructor(x:number, y:number, cursorThickness: number) {
     this.x = x;
     this.y = y;
+    this.cursorThickness = cursorThickness;
   }
   display(ctx: CanvasRenderingContext2D) {
     const originalFill = ctx.fillStyle;
-    ctx.font = "32px monospace";
+    ctx.font = `${this.cursorThickness + 16}px monospace`;
     ctx.fillStyle = "black";
     ctx.fillText("*", this.x - 8, this.y+16);
     console.log(`displaycursor works: ${this.x}, ${this.y},`, ctx.font);
@@ -79,7 +81,7 @@ const penButton = document.createElement("button");
 penButton.addEventListener("click", () => {
   currentSticker = null;
   stickerCommand = null;
-  console.log(currentSticker);
+  //console.log(currentSticker); //debugging
 });
 
 
@@ -109,7 +111,7 @@ canvas.style.cursor = "none";
 
 const cursor = { active: false, x: 0, y: 0 };
 const zero = 0;
-let currentThickness = 2;
+let currentThickness = 7;
 
 
 const lines: (LineCommand|StickerCommand)[] = []; //equivalent to "linecommand"
@@ -127,7 +129,7 @@ bus.addEventListener("drawing-changed", redraw);
 bus.addEventListener("tool-moved", redraw);
 
 canvas.addEventListener("mouseenter", (e) => {
-  cursorMouse = new CursorCommand(e.offsetX, e.offsetY);
+  cursorMouse = new CursorCommand(e.offsetX, e.offsetY,currentThickness);
 });
 
 canvas.addEventListener("mousedown", (e) => {
@@ -159,7 +161,7 @@ canvas.addEventListener("mousedown", (e) => {
     if (currentSticker) {
       stickerCommand = new StickerCommand(event.offsetX, event.offsetY, currentSticker);
     }
-    cursorMouse = new CursorCommand(event.offsetX, event.offsetY);
+    cursorMouse = new CursorCommand(event.offsetX, event.offsetY,currentThickness);
     notify("tool-moved");
     console.log(currentThickness);
   });
@@ -228,7 +230,7 @@ function redoCanvas() {
 }
 
 const thinButton = document.createElement("button");
-  thinButton.innerHTML = "<-";
+  thinButton.innerHTML = "thin";
 thinButton.addEventListener("click", () => {
   if (currentThickness >= 1) {
     currentThickness--;
@@ -240,10 +242,11 @@ thinButton.addEventListener("click", () => {
 });
   
 const thickButton = document.createElement("button");
-  thickButton.innerHTML = "->";
+  thickButton.innerHTML = "THICK";
 thickButton.addEventListener("click", () => {
   if (currentThickness < 15) {
     currentThickness++;
+    
     //lines[lines.length-1].lineThickness = currentThickness;
     ctx.lineWidth = currentThickness;
     notify("drawing-changed");
