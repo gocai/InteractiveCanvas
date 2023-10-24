@@ -34,7 +34,7 @@ class CursorCommand {
   }
   display(ctx: CanvasRenderingContext2D) {
     const originalFill = ctx.fillStyle;
-    ctx.font = `${this.cursorThickness + 16}px monospace`;
+    ctx.font = `${this.cursorThickness + 32}px monospace`;
     ctx.fillStyle = "black";
     ctx.fillText("*", this.x - 8, this.y+16);
     console.log(`displaycursor works: ${this.x}, ${this.y},`, ctx.font);
@@ -111,7 +111,7 @@ canvas.style.cursor = "none";
 
 const cursor = { active: false, x: 0, y: 0 };
 const zero = 0;
-let currentThickness = 7;
+let currentThickness = 8;
 
 
 const lines: (LineCommand|StickerCommand)[] = []; //equivalent to "linecommand"
@@ -232,28 +232,41 @@ function redoCanvas() {
 const thinButton = document.createElement("button");
   thinButton.innerHTML = "thin";
 thinButton.addEventListener("click", () => {
-  if (currentThickness >= 1) {
-    currentThickness--;
+  
+    currentThickness = 1;
     //lines[lines.length - 1].lineThickness = currentThickness;
     ctx.lineWidth = currentThickness;
     notify("drawing-changed");
     console.log("thin works");
   }
-});
+);
   
 const thickButton = document.createElement("button");
   thickButton.innerHTML = "THICK";
 thickButton.addEventListener("click", () => {
-  if (currentThickness < 15) {
-    currentThickness++;
+
+  currentThickness = 15;
     
     //lines[lines.length-1].lineThickness = currentThickness;
     ctx.lineWidth = currentThickness;
     notify("drawing-changed");
     console.log("thick works");
   }
-});
+);
+
+const normButton = document.createElement("button");
+  normButton.innerHTML = "Regular";
+normButton.addEventListener("click", () => {
+
+  currentThickness = 8;
+    
+    //lines[lines.length-1].lineThickness = currentThickness;
+    ctx.lineWidth = currentThickness;
+    notify("drawing-changed");
+    console.log("thick works");
+  }
+);
   
-app.append(thinButton, thickButton, stickerButton, penButton);
+app.append(thinButton,normButton, thickButton, stickerButton, penButton);
 
 //step 8 is like cursorcommand, but with stickers
