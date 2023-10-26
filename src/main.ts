@@ -76,6 +76,22 @@ stickerButton.addEventListener("click", () => {
   console.log(currentSticker);
 });
 
+const customStickerMaker = document.createElement("button");
+customStickerMaker.innerHTML = "Make a custom sticker!";
+customStickerMaker.addEventListener("click", () => {
+  const customStickerText = prompt("Custom sticker?");
+  if (customStickerText == "" || customStickerText == null) {
+    return;
+  }
+  const customStickerButton = document.createElement("button");
+  customStickerButton.innerHTML = customStickerText;
+  customStickerButton.addEventListener("click", () => {
+    currentSticker = `${customStickerText}`;
+  });
+  app.append(customStickerButton);
+});
+
+
 const penButton = document.createElement("button");
   penButton.innerHTML = currentSticker? currentSticker:"🖊️";
 penButton.addEventListener("click", () => {
@@ -88,7 +104,7 @@ penButton.addEventListener("click", () => {
 
 const app: HTMLDivElement = document.querySelector("#app")!;
 
-const gameName = "small title change";
+const gameName = "Doodle :)";
 
 document.title = gameName;
 
@@ -266,7 +282,9 @@ normButton.addEventListener("click", () => {
     console.log("thick works");
   }
 );
+
+
   
-app.append(thinButton,normButton, thickButton, stickerButton, penButton);
+app.append(thinButton,normButton, thickButton, stickerButton, penButton, customStickerMaker);
 
 //step 8 is like cursorcommand, but with stickers
