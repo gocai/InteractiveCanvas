@@ -103,7 +103,7 @@ penButton.addEventListener("click", () => {
 
 
 const app: HTMLDivElement = document.querySelector("#app")!;
-const body: HTMLBodyElement = document.querySelector("body")!;
+
 
 const gameName = "Doodle :)";
 
