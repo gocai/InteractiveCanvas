@@ -3,12 +3,14 @@ import "./style.css";
 class LineCommand {
   points: { x: number, y: number }[];
   lineThickness: number;
-  constructor(x:number, y:number, thickness: number) {
+  lineColor: string;
+  constructor(x:number, y:number, thickness: number, lineColor:string) {
     this.points = [{ x, y }];
     this.lineThickness = thickness;
+    this.lineColor = lineColor;
   }
   display(ctx: CanvasRenderingContext2D) {
-    ctx.strokeStyle = "black";
+    ctx.strokeStyle = this.lineColor;
     ctx.lineWidth = this.lineThickness;
     ctx.beginPath();
     const { x, y } = this.points[0];
@@ -27,15 +29,17 @@ class CursorCommand {
   x: number;
   y: number;
   cursorThickness: number;
-  constructor(x:number, y:number, cursorThickness: number) {
+  cursorColor: string;
+  constructor(x:number, y:number, cursorThickness: number,cursorColor: string) {
     this.x = x;
     this.y = y;
     this.cursorThickness = cursorThickness;
+    this.cursorColor = cursorColor;
   }
   display(ctx: CanvasRenderingContext2D) {
     const originalFill = ctx.fillStyle;
     ctx.font = `${this.cursorThickness + 32}px monospace`;
-    ctx.fillStyle = "black";
+    ctx.fillStyle = this.cursorColor;
     ctx.fillText("*", this.x - 8, this.y+16);
     console.log(`displaycursor works: ${this.x}, ${this.y},`, ctx.font);
     ctx.fillStyle = originalFill;
@@ -103,6 +107,12 @@ penButton.addEventListener("click", () => {
 
 
 const app: HTMLDivElement = document.querySelector("#app")!;
+const rangeInput = document.createElement("input");
+rangeInput.type = "range";
+rangeInput.id = "stringRange";
+rangeInput.min = "0";
+rangeInput.max = "2";
+rangeInput.step = "1";
 
 
 const gameName = "Doodle :)";
@@ -113,7 +123,6 @@ const header = document.createElement("h1");
 header.innerHTML = gameName;
 header.style.textAlign = "center";
 app.append(header);
-
 //step 1
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -129,6 +138,7 @@ canvas.style.cursor = "none";
 const cursor = { active: false, x: 0, y: 0 };
 const zero = 0;
 let currentThickness = 6;
+let currentColor = "black";
 
 
 const lines: (LineCommand|StickerCommand)[] = []; //equivalent to "linecommand"
@@ -146,7 +156,7 @@ bus.addEventListener("drawing-changed", redraw);
 bus.addEventListener("tool-moved", redraw);
 
 canvas.addEventListener("mouseenter", (e) => {
-  cursorMouse = new CursorCommand(e.offsetX, e.offsetY,currentThickness);
+  cursorMouse = new CursorCommand(e.offsetX, e.offsetY,currentThickness,currentColor);
 });
 
 canvas.addEventListener("mousedown", (e) => {
@@ -158,7 +168,7 @@ canvas.addEventListener("mousedown", (e) => {
   if (currentSticker) {
     lines.push(new StickerCommand(e.offsetX, e.offsetY, currentSticker));
   } else {
-    lines.push(new LineCommand(e.offsetX,e.offsetY,currentThickness));
+    lines.push(new LineCommand(e.offsetX,e.offsetY,currentThickness,currentColor));
   }
   //currentLine.push({ x: cursor.x, y: cursor.y });
   redoLines.splice(zero, redoLines.length);
@@ -178,7 +188,7 @@ canvas.addEventListener("mousedown", (e) => {
     if (currentSticker) {
       stickerCommand = new StickerCommand(event.offsetX, event.offsetY, currentSticker);
     }
-    cursorMouse = new CursorCommand(event.offsetX, event.offsetY,currentThickness);
+    cursorMouse = new CursorCommand(event.offsetX, event.offsetY,currentThickness,currentColor);
     notify("tool-moved");
     console.log(currentThickness);
   });
@@ -301,8 +311,32 @@ exportButton.addEventListener("click", () => {
   download.download = "doodle.png";
   download.click();
 });
-
+const rainbowColors: string[] = [
+  "red",
+  "orange",
+  "yellow",
+  "green",
+  "blue",
+  "purple",
+  "black",
+];
+const colorButton = document.createElement("button");
+colorButton.innerHTML = "color";
+//let i = 0;
+colorButton.addEventListener("click", () => {
+  /*if (i >= rainbowColors.length) {
+    i = 0;
+  }
+  currentColor = rainbowColors[i];
+  colorButton.innerHTML = rainbowColors[i];
+  colorButton.style.color = currentColor;
+  i++;*/
+  const randomColor = Math.floor(Math.random() * rainbowColors.length);
+  currentColor = rainbowColors[randomColor];
+  colorButton.innerHTML = currentColor;
+  colorButton.style.color = currentColor;
+});
   
-app.append(thinButton,normButton, thickButton, stickerButton, penButton, customStickerMaker,exportButton);
+app.append(thinButton,normButton, thickButton, stickerButton, penButton,colorButton, customStickerMaker,exportButton,);
 
 //step 8 is like cursorcommand, but with stickers
