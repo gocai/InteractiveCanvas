@@ -55,7 +55,7 @@ class StickerCommand {
   }
   display(ctx: CanvasRenderingContext2D) {
     const originalFill = ctx.fillStyle;
-    ctx.font = "32px monospace";
+    ctx.font = "24px monospace";
     ctx.fillStyle = "black";
     if (this.sticker) {
       ctx.fillText(this.sticker, this.x, this.y);
@@ -103,6 +103,7 @@ penButton.addEventListener("click", () => {
 
 
 const app: HTMLDivElement = document.querySelector("#app")!;
+const body: HTMLBodyElement = document.querySelector("body")!;
 
 const gameName = "Doodle :)";
 
