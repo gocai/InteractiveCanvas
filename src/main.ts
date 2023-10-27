@@ -127,7 +127,7 @@ canvas.style.cursor = "none";
 
 const cursor = { active: false, x: 0, y: 0 };
 const zero = 0;
-let currentThickness = 8;
+let currentThickness = 6;
 
 
 const lines: (LineCommand|StickerCommand)[] = []; //equivalent to "linecommand"
@@ -283,8 +283,25 @@ normButton.addEventListener("click", () => {
   }
 );
 
+const exportButton = document.createElement("button");
+exportButton.innerHTML = "Click to Export";
+exportButton.addEventListener("click", () => {
+  const exportCanvas = document.createElement("canvas");
+  exportCanvas.width = 1024;
+  exportCanvas.height = 1024;
+  const exportContext = exportCanvas.getContext("2d")!;
+  exportContext.scale(4, 4);
+  for (const line of lines) {
+    line.display(exportContext);
+  }
+  const exportUrl = exportCanvas.toDataURL("image/png");
+  const download = document.createElement("a");
+  download.href = exportUrl;
+  download.download = "doodle.png";
+  download.click();
+});
 
   
-app.append(thinButton,normButton, thickButton, stickerButton, penButton, customStickerMaker);
+app.append(thinButton,normButton, thickButton, stickerButton, penButton, customStickerMaker,exportButton);
 
 //step 8 is like cursorcommand, but with stickers
