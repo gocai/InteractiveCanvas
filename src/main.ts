@@ -115,7 +115,7 @@ rangeInput.max = "2";
 rangeInput.step = "1";
 
 
-const gameName = "Doodle :)";
+const gameName = "Draw Something!";
 
 document.title = gameName;
 
