@@ -244,10 +244,10 @@ var exportButton = document.createElement("button");
 exportButton.innerHTML = "Click to Export";
 exportButton.addEventListener("click", function () {
     var exportCanvas = document.createElement("canvas");
-    exportCanvas.width = 1024;
-    exportCanvas.height = 1024;
+    exportCanvas.width = 800;
+    exportCanvas.height = 800;
     var exportContext = exportCanvas.getContext("2d");
-    exportContext.scale(4, 4);
+    //exportContext.scale(4, 4);
     for (var _i = 0, lines_2 = lines; _i < lines_2.length; _i++) {
         var line = lines_2[_i];
         line.display(exportContext);
